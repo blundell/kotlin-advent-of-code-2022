@@ -1,3 +1,7 @@
+package day2
+
+import readInput
+
 fun main() {
 
     /**
@@ -149,7 +153,7 @@ fun main() {
     }
 
     // test if implementation meets criteria from the description, like:
-    val testInput = readInput("Day02_test")
+    val testInput = readInput("day02/Day02_test")
     check(part1(testInput) == 9)
 
     val input = readInput("Day02")

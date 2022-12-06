@@ -1,3 +1,7 @@
+package day3
+
+import readInput
+
 fun main() {
 
     /**
@@ -52,7 +56,7 @@ fun main() {
     }
 
     // test if implementation meets criteria from the description, like:
-    val testInput = readInput("Day03_test")
+    val testInput = readInput("day3/Day03_test")
     check(part2(testInput) == 70) { "[${part2(testInput)}] is wrong." }
 
     val input = readInput("Day03")

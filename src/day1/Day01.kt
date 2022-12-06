@@ -1,3 +1,7 @@
+package day1
+
+import readInput
+
 fun main() {
     fun collectElvesCalories(input: List<String>): Map<Int, List<String>> {
         val caloriesByTotal = mutableMapOf<Int, List<String>>()
@@ -40,7 +44,7 @@ fun main() {
     }
 
     // test if implementation meets criteria from the description, like:
-    val testInput = readInput("Day01_test")
+    val testInput = readInput("day01/Day01_test")
     check(part1(testInput) == 1000)
 
     val input = readInput("Day01")

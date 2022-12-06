@@ -1,6 +1,15 @@
 fun main() {
 
     /**
+     * https://theasciicode.com.ar/
+     */
+    fun Char.toElfIndex() = if (isLowerCase()) {
+        (code - 96)
+    } else {
+        (code - 38)
+    }
+
+    /**
      * Lowercase item types a through z have priorities 1 through 26.
      * Uppercase item types A through Z have priorities 27 through 52.
      *
@@ -21,22 +30,30 @@ fun main() {
             }
             dupe
         }.sumOf {
-            // https://theasciicode.com.ar/
-            if (it.isLowerCase()) {
-                (it.code - 96)
-            } else {
-                (it.code - 38)
-            }
+            it.toElfIndex()
         }
     }
 
     fun part2(input: List<String>): Int {
-        return input.size
+        return input.chunked(3)
+            .map {
+                for (a in it[0]) {
+                    for (b in it[1]) {
+                        for (c in it[2]) {
+                            if (a == b && b == c) {
+                                return@map a.toElfIndex().also { n -> println("F $a $n") }
+                            }
+                        }
+                    }
+                }
+                throw IllegalStateException("No match!")
+            }
+            .sum()
     }
 
     // test if implementation meets criteria from the description, like:
     val testInput = readInput("Day03_test")
-    check(part1(testInput) == 157) { "[${part1(testInput)}] is wrong." }
+    check(part2(testInput) == 70) { "[${part2(testInput)}] is wrong." }
 
     val input = readInput("Day03")
     println(part1(input))

@@ -11,7 +11,7 @@ fun main() {
     val testInput = readInput("dayN/DayN_test")
     check(part1(testInput) == 1)
 
-    val input = readInput("dayN/DayN")
+    val input = readInput("day5/DayN")
     println(part1(input))
     println(part2(input))
 }

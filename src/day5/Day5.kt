@@ -29,8 +29,6 @@ fun main() {
         for (row in 0..rowsOfCrates.first().size) {
             stacks.add(ArrayDeque(mutableListOf()))
         }
-        println(rowsOfCrates.size)
-        println(stacks.size)
         for (row in rowsOfCrates) {
             for (crate in row) {
                 rowIndex++
@@ -71,9 +69,9 @@ fun main() {
                 val toStack = stacks[instruction.to - 1]
                 val fromStack = stacks[instruction.from - 1]
                 toStack.addFirst(fromStack.removeFirst())
-                println(instruction)
-                println(stacks)
-                println("--")
+//                println(instruction)
+//                println(stacks)
+//                println("--")
             }
         }
 
@@ -81,15 +79,36 @@ fun main() {
     }
 
     fun part2(input: List<String>): String {
-        return ""
+        val stacks: List<ArrayDeque<Char>> = parseStacks(input)
+        val instructions: List<Instruction> = parseInstructions(input)
+
+        for (instruction in instructions) {
+            val toStack = stacks[instruction.to - 1]
+            val fromStack = stacks[instruction.from - 1]
+            val moveAll = mutableListOf<Char>()
+            for (n in 0 until instruction.moves) {
+                val crate = fromStack[n]
+                moveAll.add(crate)
+            }
+            for (n in instruction.moves - 1 downTo 0) {
+                fromStack.removeAt(n)
+            }
+            toStack.addAll(0, moveAll)
+//            println(instruction)
+//            println(stacks)
+//            println("--")
+        }
+        return stacks.map { it.firstOrNull() ?: "" }.joinToString(separator = "")
     }
 
     // test if implementation meets criteria from the description, like:
     val testInput = readInput("day5/Day5_test")
-//    val part1Result = part1(testInput)
-//    check(part1Result == "CMZ") { "Got [$part1Result instead of CMZ." }
+    val part1Result = part1(testInput)
+    check(part1Result == "CMZ") { "Got [$part1Result instead of CMZ." }
+    val part2Result = part2(testInput)
+    check(part2Result == "MCD") { "Got [$part2Result] instead of CMZ." }
 
     val input = readInput("day5/Day5")
     println(part1(input))
-//    println(part2(input))
+    println(part2(input))
 }

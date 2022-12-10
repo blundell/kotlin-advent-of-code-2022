@@ -3,10 +3,10 @@ package day6
 import readInput
 
 fun main() {
-    fun part1(input: List<String>): Int {
+    fun detectStartOfPacket(input: List<String>, startOfMessageMarkerSize: Int): Int {
         var lastFour = ""
         for ((index, c) in input[0].withIndex()) {
-            if (lastFour.length < 4) {
+            if (lastFour.length < startOfMessageMarkerSize) {
                 lastFour += c
                 continue
             }
@@ -27,11 +27,15 @@ fun main() {
                 return index + 1
             }
         }
-        throw IllegalStateException("No unique start for [$input].")
+        throw IllegalStateException("No marker in [$input].")
+    }
+
+    fun part1(input: List<String>): Int {
+        return detectStartOfPacket(input, 4)
     }
 
     fun part2(input: List<String>): Int {
-        return input.size
+        return detectStartOfPacket(input, 14)
     }
 
     // test if implementation meets criteria from the description, like:

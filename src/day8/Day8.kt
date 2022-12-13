@@ -17,6 +17,27 @@ data class Height(
             westHeights,
         ).any { heights -> heights.none { it >= value } }
     }
+
+    val scenicScore by lazy {
+        northHeights.reversed().countBelow(value) *
+                southHeights.countBelow(value) *
+                eastHeights.countBelow(value) *
+                westHeights.reversed().countBelow(value)
+    }
+
+    private fun List<Int>.countBelow(target: Int): Int {
+        var runningTotal = 0
+        for (n in this) {
+            if (n < target) {
+                runningTotal += 1
+            }
+            if (n >= target) {
+                runningTotal += 1
+                break
+            }
+        }
+        return runningTotal
+    }
 }
 
 private fun List<Int>.subListFrom(fromIndex: Int): List<Int> {
@@ -97,13 +118,23 @@ fun main() {
     }
 
     fun part2(input: List<String>): Int {
-        return input.size
+        val rows = getAsInts(input)
+        val heights = storeHeights(rows)
+        return heights.map {
+            it.map { h ->
+                h.scenicScore
+            }
+        }
+            .flatten()
+            .max()
     }
 
     // test if implementation meets criteria from the description, like:
     val testInput = readInput("day8/Day8_test")
     val part1Result = part1(testInput)
     check(part1Result == 21) { "Expected 21 but got [$part1Result]" }
+    val part2Result = part2(testInput)
+    check(part2Result == 8) { "Expected 8 but got [$part2Result]" }
 
     val input = readInput("day8/Day8")
     println(part1(input))

@@ -36,19 +36,22 @@ data class Directory(
         }
     }
 
-    override fun equals(other: Any?): Boolean {
-        if (other !is Directory) {
-            return false
-        }
-        return name == other.name && parent == other.parent
-    }
-
-    fun hasDir(directory: Directory): Boolean = this.directories.contains(directory)
+    fun hasDir(directory: Directory): Boolean = this.directories.find {
+        it.name == directory.name && it.parent == directory.parent
+    } != null
 
     fun addFile(name: String, size: Long) {
         this.files.add(FileDetails(name, size))
     }
 
+    fun findOver(sizeMin: Long, output: MutableList<Directory>) {
+        if (this.size >= sizeMin) {
+            output.add(this)
+        }
+        for (directory in directories) {
+            directory.findOver(sizeMin, output)
+        }
+    }
 }
 
 fun main() {
@@ -103,15 +106,28 @@ fun main() {
     }
 
     fun part2(input: List<String>): Int {
-        return input.size
+        val fileSystem: Directory = readFileSystem(input)
+        val unusedSpace = 70_000_000 - fileSystem.size
+        val neededSpace = 30_000_000 - unusedSpace
+        val output = mutableListOf<Directory>()
+        fileSystem.findOver(neededSpace, output)
+        var smallest: Directory? = null
+        for (directory in output) {
+            if (smallest == null || directory.size < smallest.size) {
+                smallest = directory
+            }
+        }
+        return smallest!!.size.toInt()
     }
 
     // test if implementation meets criteria from the description, like:
     val testInput = readInput("day7/Day7_test")
     val part1Result = part1(testInput)
-    check(part1Result == 95437) { "Expecting 1 but got [$part1Result]." }
+    check(part1Result == 95437) { "Expecting 95437 but got [$part1Result]." }
+    val part2Result = part2(testInput)
+    check(part2Result == 24933642) { "Expecting 24933642 but got [$part2Result]." }
 
     val input = readInput("day7/Day7")
     println(part1(input))
-//    println(part2(input))
+    println(part2(input))
 }

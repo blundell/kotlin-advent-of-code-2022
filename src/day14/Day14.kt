@@ -21,7 +21,7 @@ private fun Point.inc(x: Int = 0, y: Int = 0): Point {
     return Point(this.x + x, this.y + y)
 }
 
-const val showVisuals = true
+const val showVisuals = false
 
 fun main() {
     fun expandRock(rockPaths: MutableList<List<Point>>): List<Point> {
@@ -92,7 +92,7 @@ fun main() {
         println()
     }
 
-    fun simulateSand(
+    fun simulatePart1Sand(
         rockPoints: List<Point>,
         sandSpawn: Point,
         yRange: IntRange,
@@ -148,7 +148,82 @@ fun main() {
         return sandPoints
     }
 
-    fun part1(input: List<String>): Int {
+    fun simulatePart2Sand(
+        rockPoints: List<Point>,
+        sandSpawn: Point,
+        yRange: IntRange,
+        xRange: IntRange
+    ): MutableList<Point> {
+        val sandPoints = mutableListOf<Point>()
+        val floorDepth = Point(-500_000, yRange.last + 2)
+        val floor = Array(1000_000) { n -> floorDepth.inc(x = n) }
+        val collisionPoints = (rockPoints + sandPoints + floor).toMutableList()
+        var backedUpToSpawn = false
+        var moving: Boolean
+        println("Floor is at $floorDepth")
+        println("Typical X range is $xRange")
+        while (!backedUpToSpawn) {
+            var sandGrain = sandSpawn.inc(y = -1)
+            moving = true
+            while (moving) {
+                if (collisionPoints.contains(sandGrain.moveDown())) {
+                    // If rock or sand in the way (below)
+                    if (collisionPoints.contains(sandGrain.moveDownAndLeft())) {
+                        // If rock or sand in the way (below and left)
+                        if (collisionPoints.contains(sandGrain.moveDownAndRight())) {
+                            // If rock or sand in the way (below and right)
+                            // Blocked in all directions
+                            moving = false
+                            if (sandGrain == sandSpawn) {
+                                println("proper backed up!")
+                                moving = false
+                                backedUpToSpawn = true
+                            }
+                        } else {
+                            // Nothing below and right
+                            sandGrain = sandGrain.moveDownAndRight()
+                        }
+                    } else {
+                        // Nothing below and left
+                        sandGrain = sandGrain.moveDownAndLeft()
+                    }
+                } else {
+                    // Nothing below
+                    sandGrain = sandGrain.moveDown()
+                }
+//                if (sandGrain == sandSpawn) {
+//                    // Backed up
+//                    println("backed up")
+//                    moving = false
+//                    backedUpToSpawn = true
+//                }
+                if (sandGrain.y > floorDepth.y - 2) {
+                    println("Floor $sandGrain")
+                }
+                if (sandGrain.y >= floorDepth.y) {
+                    println("Gone over $sandGrain")
+                }
+                if (sandGrain == Point(0, 500)) {
+                    println("BREAK YO")
+                }
+            }
+
+            // Sand starts at source
+            // Down if possible (air)
+            // If down blocked by rock or sand, down & left
+            // If down and left blocked by rock or sand, down & right
+            // if down & down left & down right blocked, comes to rest where it is
+            // Next sand starts at source
+            sandPoints.add(sandGrain)
+            collisionPoints.add(sandGrain)
+            if (showVisuals) {
+                printScan(xRange, yRange, sandSpawn, sandPoints, rockPoints)
+            }
+        }
+        return sandPoints
+    }
+
+    fun parseRockPaths(input: List<String>): MutableList<List<Point>> {
         val rockPaths = mutableListOf<List<Point>>()
         for (line in input) {
             val path = "([0-9]{3}),([0-9]{1,3})".toRegex().findAll(line)
@@ -157,30 +232,43 @@ fun main() {
                 .toList()
             rockPaths.add(path)
         }
+        return rockPaths
+    }
 
+    fun part1(input: List<String>): Int {
+        val rockPaths = parseRockPaths(input)
         val sandSpawn = Point(500, 0)
         val allPathPoints = rockPaths.flatten() + listOf(sandSpawn)
         val xRange = IntRange(allPathPoints.minOf { it.x }, allPathPoints.maxOf { it.x })
         val yRange = IntRange(allPathPoints.minOf { it.y }, allPathPoints.maxOf { it.y })
-
         val rockPoints = expandRock(rockPaths)
 
-        println("A grid of $xRange by $yRange")
-        val sandPoints = simulateSand(rockPoints, sandSpawn, yRange, xRange)
+        println("Part 1 A grid of $xRange by $yRange")
+        val sandPoints = simulatePart1Sand(rockPoints, sandSpawn, yRange, xRange)
 
         return sandPoints.size - 1
     }
 
     fun part2(input: List<String>): Int {
-        return input.size
+        val rockPaths = parseRockPaths(input)
+        val rockPoints = expandRock(rockPaths)
+        val sandSpawn = Point(500, 0)
+        val allPathPoints = rockPaths.flatten() + listOf(sandSpawn)
+        val xRange = IntRange(allPathPoints.minOf { it.x }, allPathPoints.maxOf { it.x })
+        val yRange = IntRange(allPathPoints.minOf { it.y }, allPathPoints.maxOf { it.y })
+
+        println("Part 2 A grid of $xRange by $yRange")
+        val sandPoints = simulatePart2Sand(rockPoints, sandSpawn, yRange, xRange)
+
+        return sandPoints.size
     }
 
     // test if implementation meets criteria from the description, like:
     val testInput = readInput("day14/Day14_test")
     val part1Result = part1(testInput)
     check(part1Result == 24) { "Expected 24 but got [$part1Result]." }
-//    val part2Result = part2(testInput)
-//    check(part2Result == 91) { "Expected 91 but got [$part2Result]." }
+    val part2Result = part2(testInput)
+    check(part2Result == 91) { "Expected 91 but got [$part2Result]." }
 
     val input = readInput("day14/Day14")
     println(part1(input))
